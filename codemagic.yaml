@@ -24,4 +24,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - YOUR_EMAIL_HERE # ضع إيميلك هنا لتصلك النسخة عليه
+          - haedirasso@gmail.com
