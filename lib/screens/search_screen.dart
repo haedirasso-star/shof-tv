@@ -1,3 +1,5 @@
+import '../services/api_service.dart';
+import 'movie_details_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/movie_model.dart';
