@@ -1,0 +1,47 @@
+[
+  {
+    "name": "beIN Sports 1",
+    "url": "http://125.209.88.166:45793/BRN/beINSP11.stream/playlist.m3u8",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/BeIN_Sports_1_logo.svg/1024px-BeIN_Sports_1_logo.svg.png"
+  },
+  {
+    "name": "beIN Sports 2",
+    "url": "http://125.209.88.166:45793/BRN/beINSP12.stream/playlist.m3u8",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/BeIN_Sports_2_logo.svg/1200px-BeIN_Sports_2_logo.svg.png"
+  },
+  {
+    "name": "beIN Sports Extra",
+    "url": "https://bein-esp-xumo.amagi.tv/playlistR720P.m3u8",
+    "logo": "https://i.imgur.com/u7q15K5.png"
+  },
+  {
+    "name": "TNT Sports 1",
+    "url": "http://109.61.81.147:2080/cdn2/559/video.m3u8?token=4444",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/TNT_Sports_logo.svg/1200px-TNT_Sports_logo.svg.png"
+  },
+  {
+    "name": "Sky Sports LaLiga",
+    "url": "http://190.92.10.66:4000/play/a001/index.m3u8",
+    "logo": "https://i.imgur.com/M6L5vO1.png"
+  },
+  {
+    "name": "ESPN Premium",
+    "url": "http://190.102.246.93:9005/play/a00x",
+    "logo": "https://i.imgur.com/8NisC3N.png"
+  },
+  {
+    "name": "Real Madrid TV",
+    "url": "https://rmtv.akamaized.net/hls/live/2043153/rmtv-es-web/bitrate_3.m3u8",
+    "logo": "https://i.imgur.com/7jL5x4I.png"
+  },
+  {
+    "name": "UFC Channel",
+    "url": "http://78.159.122.138:2082/Jvyct679999967DDDF4477/Xpluxxx3333ggghy5t57/134",
+    "logo": "https://i.imgur.com/0vKz5Y9.png"
+  },
+  {
+    "name": "EuroSport 1",
+    "url": "http://185.189.225.157/EuroSport1/index.m3u8",
+    "logo": "https://i.imgur.com/lZ2yPjY.png"
+  }
+]
