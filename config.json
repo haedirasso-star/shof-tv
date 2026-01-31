@@ -1,0 +1,8 @@
+{
+  "host": "http://stariptv.org:8080",
+  "user": "basma2022",
+  "pass": "123456",
+  "app_name": "Shof TV",
+  "mandatory_update": false,
+  "telegram_support": "https://t.me/O_2828"
+}
