@@ -15,11 +15,15 @@ class MovieModel {
 
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     return MovieModel(
-      id: json['id'],
-      title: json['title'] ?? json['name'] ?? 'عنوان غير معروف',
-      posterPath: 'https://image.tmdb.org/t/p/w500${json['poster_path']}',
-      backdropPath: 'https://image.tmdb.org/t/p/w780${json['backdrop_path']}',
-      overview: json['overview'] ?? '',
+      id: json['id'] ?? 0,
+      title: json['title'] ?? json['name'] ?? "عنوان غير متوفر",
+      posterPath: json['poster_path'] != null 
+          ? "https://image.tmdb.org/t/p/w500${json['poster_path']}" 
+          : "https://via.placeholder.com/500x750?text=No+Image",
+      backdropPath: json['backdrop_path'] != null 
+          ? "https://image.tmdb.org/t/p/w780${json['backdrop_path']}" 
+          : "",
+      overview: json['overview'] ?? "لا يوجد وصف متوفر لهذا العمل.",
     );
   }
 }
