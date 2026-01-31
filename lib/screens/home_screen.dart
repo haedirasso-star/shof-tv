@@ -4,7 +4,8 @@ import '../services/api_service.dart';
 import '../models/movie_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'live_tv_screen.dart';
-import 'movie_details_screen.dart'; // استيراد ملف التفاصيل الجديد
+import 'movie_details_screen.dart';
+import 'search_screen.dart'; // تأكد من استيراد صفحة البحث هنا
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,7 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.search, color: Colors.yellow),
             onPressed: () {
-              // محرك البحث
+              // --- تم ربط البحث هنا ---
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchScreen()),
+              );
             },
           ),
         ],
@@ -36,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. السلايدر المتحرك (الربط تم هنا أيضاً)
+            // 1. السلايدر المتحرك للأفلام الرائجة
             FutureBuilder<List<dynamic>>(
               future: _apiService.getTrendingMovies(),
               builder: (context, snapshot) {
@@ -59,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     final movie = MovieModel.fromJson(movieData);
                     return GestureDetector(
                       onTap: () {
-                        // الربط بشاشة التفاصيل عند الضغط على السلايدر
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => MovieDetailsScreen(movie: movie)),
@@ -113,15 +117,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildNavButton("البث المباشر", Icons.live_tv, () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => LiveTvScreen()));
                   }),
-                  _buildNavButton("السينما", Icons.movie, () {}),
-                  _buildNavButton("المسلسلات", Icons.tv, () {}),
+                  _buildNavButton("السينما", Icons.movie, () {
+                    // يمكن إضافة تصفية للأفلام فقط هنا لاحقاً
+                  }),
+                  _buildNavButton("المسلسلات", Icons.tv, () {
+                    // يمكن إضافة تصفية للمسلسلات فقط هنا لاحقاً
+                  }),
                 ],
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // 3. قوائم المحتوى (الربط تم هنا أيضاً)
+            // 3. قوائم المحتوى
             _buildMovieSection("الأفلام المضافة حديثاً", "movie"),
             _buildMovieSection("أحدث المسلسلات", "tv"),
           ],
@@ -185,7 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   final movie = MovieModel.fromJson(snapshot.data![index]);
                   return GestureDetector(
                     onTap: () {
-                      // الربط بشاشة التفاصيل عند الضغط على أي ملصق فيلم
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MovieDetailsScreen(movie: movie)),
