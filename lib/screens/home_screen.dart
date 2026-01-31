@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart'; // مكتبة السلايدر الجديدة
 import '../services/api_service.dart';
 import '../models/movie_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'live_tv_screen.dart'; // استيراد صفحة البث المباشر
+import 'live_tv_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,21 +23,86 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("SHOF TV", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.yellow),
+            onPressed: () {
+              // مكان لإضافة محرك البحث لاحقاً
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. شريط الإعلانات (Slider)
-            Container(
-              height: 200,
-              width: double.infinity,
-              color: Colors.grey[900],
-              child: const Center(child: Icon(Icons.movie_filter, color: Colors.yellow, size: 50)), 
+            // 1. السلايدر المتحرك (يجلب الأفلام الرائجة تلقائياً)
+            FutureBuilder<List<dynamic>>(
+              future: _apiService.getTrendingMovies(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(height: 230, color: Colors.grey[900], child: const Center(child: CircularProgressIndicator(color: Colors.yellow)));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Container(height: 230, color: Colors.grey[900], child: const Icon(Icons.movie, color: Colors.yellow, size: 50));
+                }
+
+                return CarouselSlider(
+                  options: CarouselOptions(
+                    height: 230.0,
+                    autoPlay: true, // يتحرك تلقائياً
+                    enlargeCenterPage: true,
+                    viewportFraction: 0.9,
+                    autoPlayInterval: const Duration(seconds: 4),
+                  ),
+                  items: snapshot.data!.take(6).map((movieData) {
+                    final movie = MovieModel.fromJson(movieData);
+                    return GestureDetector(
+                      onTap: () {
+                        // الانتقال لتفاصيل الفيلم (اختياري)
+                      },
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: CachedNetworkImage(
+                              imageUrl: movie.backdropPath,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              placeholder: (context, url) => Container(color: Colors.black),
+                            ),
+                          ),
+                          // تظليل أسود خلف النص ليكون واضحاً
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [Colors.black.withOpacity(0.9), Colors.transparent],
+                              ),
+                            ),
+                            child: Text(
+                              movie.title,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
             ),
 
-            // 2. أزرار التنقل (محدثة بالروابط)
+            const SizedBox(height: 20),
+
+            // 2. أزرار التنقل السريع
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -44,16 +110,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => LiveTvScreen()));
                   }),
                   _buildNavButton("السينما", Icons.movie, () {
-                    // يمكنك إضافة صفحة أفلام مخصصة هنا لاحقاً
+                    // سيتم ربطها لاحقاً
                   }),
                   _buildNavButton("المسلسلات", Icons.tv, () {
-                    // يمكنك إضافة صفحة مسلسلات مخصصة هنا لاحقاً
+                    // سيتم ربطها لاحقاً
                   }),
                 ],
               ),
             ),
 
-            // 3. قائمة الأفلام والمسلسلات
+            const SizedBox(height: 20),
+
+            // 3. قوائم المحتوى (الأفلام والمسلسلات)
             _buildMovieSection("الأفلام المضافة حديثاً", "movie"),
             _buildMovieSection("أحدث المسلسلات", "tv"),
           ],
@@ -62,31 +130,42 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // تطوير الزر ليقبل الوظيفة (Function) عند الضغط
+  // ويدجت زر التنقل المطور
   Widget _buildNavButton(String title, IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      borderRadius: BorderRadius.circular(15),
+      child: Container(
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            CircleAvatar(radius: 25, backgroundColor: Colors.yellow, child: Icon(icon, color: Colors.black)),
-            const SizedBox(height: 5),
-            Text(title, style: const TextStyle(color: Colors.white, fontSize: 12)),
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: Colors.yellow,
+              child: Icon(icon, color: Colors.black, size: 30),
+            ),
+            const SizedBox(height: 8),
+            Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
     );
   }
 
+  // ويدجت أقسام الأفلام
   Widget _buildMovieSection(String sectionTitle, String type) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Text(sectionTitle, style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
+          padding: const EdgeInsets.all(15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(sectionTitle, style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("عرض الكل", style: TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
         ),
         SizedBox(
           height: 220,
@@ -96,38 +175,38 @@ class _HomeScreenState extends State<HomeScreen> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator(color: Colors.yellow));
               }
-              if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text("لا توجد بيانات حالياً", style: TextStyle(color: Colors.white)));
               }
               
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final movie = MovieModel.fromJson(snapshot.data![index]);
-                  
                   return Container(
-                    width: 130,
-                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    width: 135,
+                    margin: const EdgeInsets.only(right: 12),
                     child: Column(
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(12),
                           child: CachedNetworkImage(
                             imageUrl: movie.posterPath,
-                            height: 160,
-                            width: 130,
+                            height: 170,
+                            width: 135,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(color: Colors.grey[900]),
                             errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
                           ),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 8),
                         Text(
                           movie.title,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white, fontSize: 11),
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
                           textAlign: TextAlign.center,
                         ),
                       ],
