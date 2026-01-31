@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'video_player_screen.dart'; // تأكد أن هذا الملف موجود في مجلد screens
+import 'player_screen.dart'; // تم التغيير ليتوافق مع اسم الملف الجديد
 
 class LiveTvScreen extends StatelessWidget {
-  // تعريف الـ ApiService مرة واحدة
   final ApiService _apiService = ApiService();
 
   LiveTvScreen({super.key});
@@ -16,7 +15,7 @@ class LiveTvScreen extends StatelessWidget {
         title: const Text("البث المباشر - Shof TV", 
           style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.yellow), // تلوين زر الرجوع
+        iconTheme: const IconThemeData(color: Colors.yellow),
       ),
       body: FutureBuilder<List<dynamic>>(
         future: _apiService.fetchLiveChannels(),
@@ -58,14 +57,13 @@ class LiveTvScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.grey, fontSize: 12)),
                   trailing: const Icon(Icons.play_circle_outline, color: Colors.yellow),
                   onTap: () {
-                    // التأكد من أن القيم موجودة قبل الانتقال
                     if (channel['url'] != null) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => VideoPlayerScreen(
-                            url: channel['url'],
-                            name: channel['name'],
+                          builder: (context) => PlayerScreen(
+                            videoUrl: channel['url'], // تأكد أن الاسم videoUrl كما في كلاس PlayerScreen
+                            title: channel['name'],   // تمرير اسم القناة للعرض في AppBar المشغل
                           ),
                         ),
                       );
