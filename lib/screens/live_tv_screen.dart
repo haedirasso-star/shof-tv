@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'player_screen.dart'; // تم التغيير ليتوافق مع اسم الملف الجديد
+import 'player_screen.dart'; 
 
 class LiveTvScreen extends StatelessWidget {
   final ApiService _apiService = ApiService();
@@ -15,18 +15,28 @@ class LiveTvScreen extends StatelessWidget {
         title: const Text("البث المباشر - Shof TV", 
           style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
+        centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.yellow),
       ),
       body: FutureBuilder<List<dynamic>>(
-        future: _apiService.fetchLiveChannels(),
+        // جلب القنوات من الخدمة
+        future: _apiService.fetchLiveChannels(), 
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: Colors.yellow));
           }
+          
           if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
-              child: Text("لا توجد قنوات متاحة حالياً", 
-                style: TextStyle(color: Colors.white70)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.tv_off, color: Colors.grey, size: 50),
+                  SizedBox(height: 10),
+                  Text("لا توجد قنوات متاحة حالياً", 
+                    style: TextStyle(color: Colors.white70)),
+                ],
+              ),
             );
           }
 
@@ -57,19 +67,19 @@ class LiveTvScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.grey, fontSize: 12)),
                   trailing: const Icon(Icons.play_circle_outline, color: Colors.yellow),
                   onTap: () {
-                    if (channel['url'] != null) {
+                    if (channel['url'] != null && channel['url'].toString().isNotEmpty) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => PlayerScreen(
-                            videoUrl: channel['url'], // تأكد أن الاسم videoUrl كما في كلاس PlayerScreen
-                            title: channel['name'],   // تمرير اسم القناة للعرض في AppBar المشغل
+                            videoUrl: channel['url'], 
+                            title: channel['name'],
                           ),
                         ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("رابط القناة غير متوفر"))
+                        const SnackBar(content: Text("رابط القناة غير متوفر حالياً"))
                       );
                     }
                   },
