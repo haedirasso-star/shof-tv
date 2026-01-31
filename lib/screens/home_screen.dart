@@ -5,7 +5,8 @@ import '../models/movie_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'live_tv_screen.dart';
 import 'movie_details_screen.dart';
-import 'search_screen.dart'; // تأكد من استيراد صفحة البحث هنا
+import 'search_screen.dart'; 
+import 'package:url_launcher/url_launcher.dart'; // استيراد المكتبة لفتح الواتساب
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
 
+  // دالة فتح الواتساب للدعم الفني
+  Future<void> _launchSupport() async {
+    const String phoneNumber = "9647714415816";
+    const String message = "مرحباً دعم Shof TV، لدي استفسار بخصوص التطبيق.";
+    final Uri whatsappUrl = Uri.parse("https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}");
+
+    if (await canLaunchUrl(whatsappUrl)) {
+      await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+    } else {
+      await launchUrl(whatsappUrl, mode: LaunchMode.platformDefault);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,10 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.black,
         centerTitle: true,
         actions: [
+          // --- إضافة زر الدعم الفني هنا ---
+          IconButton(
+            icon: const Icon(Icons.headset_mic, color: Colors.yellow),
+            onPressed: _launchSupport,
+          ),
           IconButton(
             icon: const Icon(Icons.search, color: Colors.yellow),
             onPressed: () {
-              // --- تم ربط البحث هنا ---
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SearchScreen()),
@@ -115,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavButton("البث المباشر", Icons.live_tv, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LiveTvScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LiveTvScreen()));
                   }),
                   _buildNavButton("السينما", Icons.movie, () {
                     // يمكن إضافة تصفية للأفلام فقط هنا لاحقاً
