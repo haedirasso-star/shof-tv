@@ -1,11 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.haider.shoftv"> <uses-permission android:name="android.permission.INTERNET"/>
+    package="com.haider.shoftv">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:label="SHOF TV"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        @!-- التعديل المطلوب: السماح بتشغيل روابط القنوات (http) مثل beIN --@
+        android:usesCleartextTraffic="true">
         
         <activity
             android:name=".MainActivity"
