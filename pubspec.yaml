@@ -9,16 +9,23 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # مكتبات الاتصال وجلب البيانات
   http: ^1.1.0
-  video_player: ^2.7.2
-  chewie: ^1.7.1
-  url_launcher: ^6.2.1
+  
+  # مكتبات تشغيل الفيديو والبث المباشر (IPTV)
+  video_player: ^2.8.1
+  chewie: ^1.7.5
+  
+  # مكتبات الواجهة والسلايدر
+  carousel_slider: ^5.0.0 # تمت إضافتها للسلايدر المتحرك
   cached_network_image: ^3.3.0
+  url_launcher: ^6.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
