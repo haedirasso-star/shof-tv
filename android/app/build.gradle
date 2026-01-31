@@ -5,15 +5,41 @@ plugins {
 }
 
 android {
+    // الـ namespace هو الهوية الداخلية للتطبيق
     namespace "com.shof.tv"
-    compileSdkVersion 34 // تم التحديث ليتوافق مع AndroidX
+    compileSdkVersion 34
 
     defaultConfig {
+        // الـ applicationId هو المعرف الذي يظهر في متجر بلاي وعلى الهاتف
         applicationId "com.shof.tv"
+        
+        // تم ضبطها على 21 لضمان عمل مشغل الفيديو والقنوات دون مشاكل
         minSdkVersion 21
         targetSdkVersion 34
+        
         versionCode 1
         versionName "1.0"
     }
-    // باقي الكود كما هو بالأسفل...
+
+    buildTypes {
+        release {
+            // إعدادات النسخة النهائية
+            signingConfig signingConfigs.debug // يمكنك تغييره لاحقاً عند استخدام مفتاح توقيع رسمي
+            shrinkResources false
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+flutter {
+    source '../..'
 }
