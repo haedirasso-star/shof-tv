@@ -4,8 +4,10 @@ import '../models/movie_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key}); // أضفنا الكي والمحرّك الحديث
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -16,21 +18,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text("SHOF TV", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
+        title: const Text("SHOF TV", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. شريط الإعلانات والأفلام الحصرية (Slider)
+            // 1. شريط الإعلانات (Slider)
             Container(
               height: 200,
               width: double.infinity,
-              child: Placeholder(), // سنضع هنا لاحقاً كود السلايدر المتحرك
+              color: Colors.grey[900],
+              child: const Center(child: Icon(Icons.movie_filter, color: Colors.yellow, size: 50)), 
             ),
 
-            // 2. أزرار التنقل (بث مباشر، سينما، مسلسلات)
+            // 2. أزرار التنقل
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Row(
@@ -43,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // 3. قائمة الأفلام العربية والتركية
+            // 3. قائمة الأفلام والمسلسلات
             _buildMovieSection("الأفلام المضافة حديثاً", "movie"),
             _buildMovieSection("أحدث المسلسلات", "tv"),
           ],
@@ -56,8 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         CircleAvatar(radius: 25, backgroundColor: Colors.yellow, child: Icon(icon, color: Colors.black)),
-        SizedBox(height: 5),
-        Text(title, style: TextStyle(color: Colors.white, fontSize: 12)),
+        const SizedBox(height: 5),
+        Text(title, style: const TextStyle(color: Colors.white, fontSize: 12)),
       ],
     );
   }
@@ -68,24 +71,30 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Text(sectionTitle, style: TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
+          child: Text(sectionTitle, style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
         ),
-        Container(
-          height: 200,
+        SizedBox(
+          height: 220, // زدنا الارتفاع قليلاً لراحة التصميم
           child: FutureBuilder<List<dynamic>>(
             future: _apiService.fetchShofContent(type),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
-              if (!snapshot.hasData) return Center(child: Text("لا توجد بيانات", style: TextStyle(color: Colors.white)));
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator(color: Colors.yellow));
+              }
+              if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text("لا توجد بيانات حالياً", style: TextStyle(color: Colors.white)));
+              }
               
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  var movie = Movie.fromJson(snapshot.data![index]);
+                  // التصحيح: استخدام MovieModel بدلاً من Movie
+                  final movie = MovieModel.fromJson(snapshot.data![index]);
+                  
                   return Container(
                     width: 130,
-                    margin: EdgeInsets.symmetric(horizontal: 5),
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
                     child: Column(
                       children: [
                         ClipRRect(
@@ -93,12 +102,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: CachedNetworkImage(
                             imageUrl: movie.posterPath,
                             height: 160,
+                            width: 130,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(color: Colors.grey[900]),
-                            errorWidget: (context, url, error) => Icon(Icons.error),
+                            errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
                           ),
                         ),
-                        Text(movie.title, maxLines: 1, style: TextStyle(color: Colors.white, fontSize: 10), textAlign: TextAlign.center),
+                        const SizedBox(height: 5),
+                        Text(
+                          movie.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.white, fontSize: 11),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
                   );
