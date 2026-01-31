@@ -23,7 +23,7 @@ class MovieModel {
       backdropPath: json['backdrop_path'] != null 
           ? "https://image.tmdb.org/t/p/w780${json['backdrop_path']}" 
           : "",
-      overview: json['overview'] ?? "لا يوجد وصف متوفر لهذا العمل.",
+      overview: json['overview'] ?? "لا يوجد وصف لهذا العمل حالياً.",
     );
   }
 }
