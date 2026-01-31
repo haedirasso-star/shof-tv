@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // أضفت هذا للتحكم في وضع الشاشة
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -24,9 +24,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
   void initState() {
     super.initState();
     
-    // إجبار الشاشة على الوضع الأفقي عند بدء التشغيل لتجربة أفضل
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    // وضع الشاشة بالعرض لتجربة سينمائية
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
 
+    // فحص نوع الرابط
     if (!widget.videoUrl.contains('.m3u8') && !widget.videoUrl.contains('.mp4')) {
       _isWebView = true;
       _initWebView();
@@ -47,24 +51,28 @@ class _PlayerScreenState extends State<PlayerScreen> {
     try {
       _videoController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       await _videoController!.initialize();
+      
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         autoPlay: true,
         isLive: true,
         aspectRatio: _videoController!.value.aspectRatio,
-        backgroundColor: Colors.black,
         allowFullScreen: true,
+        fullScreenByDefault: false,
+        // ملاحظة: تم حذف backgroundColor لحل مشكلة فشل البناء في Codemagic
       );
     } catch (e) {
-      debugPrint("Video Init Error: $e");
+      debugPrint("خطأ في تشغيل الفيديو: $e");
     }
     if (mounted) setState(() { _isLoading = false; });
   }
 
   @override
   void dispose() {
-    // إعادة الشاشة للوضع الطبيعي عند الخروج من المشغل
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    // إعادة الشاشة للوضع العمودي عند الخروج
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     _videoController?.dispose();
     _chewieController?.dispose();
     super.dispose();
@@ -84,7 +92,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ? const CircularProgressIndicator(color: Colors.yellow)
           : _isWebView 
               ? WebViewWidget(controller: _webViewController!) 
-              : Chewie(controller: _chewieController!),
+              : _chewieController != null 
+                  ? Chewie(controller: _chewieController!)
+                  : const Text("خطأ في تحميل المشغل", style: TextStyle(color: Colors.white)),
       ),
     );
   }
