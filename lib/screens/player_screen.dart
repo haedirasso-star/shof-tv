@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:screen_brightness/screen_brightness.dart'; // اختيارية: للتحكم بالسطوع
 
 class PlayerScreen extends StatefulWidget {
   final String videoUrl;
@@ -19,26 +20,33 @@ class _PlayerScreenState extends State<PlayerScreen> {
   WebViewController? _webViewController;
   bool _isWebView = false;
   bool _isLoading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    // إخفاء أشرطة النظام (ساعة، إشعارات) لتجربة كاملة
+    _setFullScreen();
+    _checkVideoType();
+  }
+
+  void _setFullScreen() {
+    // إخفاء الأشرطة والتحويل للوضع الأفقي فوراً
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-
-    _checkVideoType();
   }
 
   void _checkVideoType() {
-    if (!widget.videoUrl.contains('.m3u8') && !widget.videoUrl.contains('.mp4')) {
+    // منطق ذكي للتمييز بين روابط البث المباشر وروابط الويب (Embed)
+    final url = widget.videoUrl.toLowerCase();
+    if (url.contains('.m3u8') || url.contains('.mp4') || url.contains('/live/')) {
+      _isWebView = false;
+      _initVideoPlayer();
+    } else {
       _isWebView = true;
       _initWebView();
-    } else {
-      _initVideoPlayer();
     }
   }
 
@@ -46,8 +54,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
     _webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black)
+      ..setNavigationDelegate(NavigationDelegate(
+        onPageFinished: (url) {
+          if (mounted) setState(() { _isLoading = false; });
+        },
+      ))
       ..loadRequest(Uri.parse(widget.videoUrl));
-    if (mounted) setState(() { _isLoading = false; });
   }
 
   void _initVideoPlayer() async {
@@ -58,32 +70,43 @@ class _PlayerScreenState extends State<PlayerScreen> {
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         autoPlay: true,
-        isLive: widget.videoUrl.contains('.m3u8'),
+        isLive: widget.videoUrl.contains('m3u8'),
         aspectRatio: _videoController!.value.aspectRatio,
         allowFullScreen: true,
         fullScreenByDefault: false,
-        // تخصيص الألوان
+        looping: false,
+        // تخصيص الهوية البصرية لـ Shof TV
         materialProgressColors: ChewieProgressColors(
           playedColor: Colors.yellow,
           handleColor: Colors.yellowAccent,
-          backgroundColor: Colors.grey,
-          bufferedColor: Colors.white24,
+          backgroundColor: Colors.white24,
+          bufferedColor: Colors.white54,
         ),
-        // هنا يمكنك استدعاء إعلان قبل البدء
-        placeholder: Container(color: Colors.black),
+        placeholder: Container(color: Colors.black, child: const Center(child: CircularProgressIndicator(color: Colors.yellow))),
         errorBuilder: (context, errorMessage) {
-          return Center(child: Text("عذراً، الرابط لا يعمل حالياً", style: TextStyle(color: Colors.white)));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.yellow, size: 42),
+                const SizedBox(height: 10),
+                Text("هذا الرابط لا يستجيب حالياً، جرب لاحقاً", style: const TextStyle(color: Colors.white70)),
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text("رجوع", style: TextStyle(color: Colors.yellow)))
+              ],
+            ),
+          );
         },
       );
     } catch (e) {
       debugPrint("Video Error: $e");
+      setState(() { _hasError = true; });
     }
     if (mounted) setState(() { _isLoading = false; });
   }
 
   @override
   void dispose() {
-    // إظهار أشرطة النظام والرجوع للوضع العمودي
+    // إعادة النظام للوضع الطبيعي قبل الخروج
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _videoController?.dispose();
@@ -97,37 +120,50 @@ class _PlayerScreenState extends State<PlayerScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. جسم المشغل
+          // 1. المشغل (فيديو أو ويب)
           Center(
             child: _isLoading
                 ? const CircularProgressIndicator(color: Colors.yellow)
-                : _isWebView
-                    ? WebViewWidget(controller: _webViewController!)
-                    : _chewieController != null
-                        ? Chewie(controller: _chewieController!)
-                        : const Text("خطأ في الاتصال", style: TextStyle(color: Colors.white)),
+                : _hasError
+                    ? const Text("خطأ في تشغيل المحتوى", style: TextStyle(color: Colors.white))
+                    : _isWebView
+                        ? WebViewWidget(controller: _webViewController!)
+                        : Chewie(controller: _chewieController!),
           ),
 
-          // 2. زر العودة الاحترافي (يختفي في وضع الويب)
+          // 2. واجهة التحكم العلوية (تظهر فوق الفيديو)
           if (!_isLoading)
             Positioned(
-              top: 20,
-              left: 20,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.yellow, size: 30),
-                onPressed: () => Navigator.pop(context),
+              top: 15,
+              left: 15,
+              right: 15,
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.yellow, size: 28),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      widget.title ?? "بث مباشر",
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, shadows: [Shadow(blurRadius: 10, color: Colors.black)]),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  // العلامة المائية في الزاوية المقابلة
+                  Opacity(
+                    opacity: 0.6,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(border: Border.all(color: Colors.yellow, width: 0.5)),
+                      child: const Text("SHOF TV", style: TextStyle(color: Colors.yellow, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
             ),
-          
-          // 3. علامة مائية (Watermark) باسم تطبيقك Shof TV لزيادة الاحترافية
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: Opacity(
-              opacity: 0.5,
-              child: Text("SHOF TV LIVE", style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 12)),
-            ),
-          ),
         ],
       ),
     );
