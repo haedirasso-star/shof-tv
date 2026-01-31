@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/movie_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'live_tv_screen.dart'; // استيراد صفحة البث المباشر
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key}); // أضفنا الكي والمحرّك الحديث
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -33,15 +34,21 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Center(child: Icon(Icons.movie_filter, color: Colors.yellow, size: 50)), 
             ),
 
-            // 2. أزرار التنقل
+            // 2. أزرار التنقل (محدثة بالروابط)
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavButton("البث المباشر", Icons.live_tv),
-                  _buildNavButton("السينما", Icons.movie),
-                  _buildNavButton("المسلسلات", Icons.tv),
+                  _buildNavButton("البث المباشر", Icons.live_tv, () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LiveTvScreen()));
+                  }),
+                  _buildNavButton("السينما", Icons.movie, () {
+                    // يمكنك إضافة صفحة أفلام مخصصة هنا لاحقاً
+                  }),
+                  _buildNavButton("المسلسلات", Icons.tv, () {
+                    // يمكنك إضافة صفحة مسلسلات مخصصة هنا لاحقاً
+                  }),
                 ],
               ),
             ),
@@ -55,13 +62,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNavButton(String title, IconData icon) {
-    return Column(
-      children: [
-        CircleAvatar(radius: 25, backgroundColor: Colors.yellow, child: Icon(icon, color: Colors.black)),
-        const SizedBox(height: 5),
-        Text(title, style: const TextStyle(color: Colors.white, fontSize: 12)),
-      ],
+  // تطوير الزر ليقبل الوظيفة (Function) عند الضغط
+  Widget _buildNavButton(String title, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        child: Column(
+          children: [
+            CircleAvatar(radius: 25, backgroundColor: Colors.yellow, child: Icon(icon, color: Colors.black)),
+            const SizedBox(height: 5),
+            Text(title, style: const TextStyle(color: Colors.white, fontSize: 12)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -74,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Text(sectionTitle, style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
         ),
         SizedBox(
-          height: 220, // زدنا الارتفاع قليلاً لراحة التصميم
+          height: 220,
           child: FutureBuilder<List<dynamic>>(
             future: _apiService.fetchShofContent(type),
             builder: (context, snapshot) {
@@ -89,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  // التصحيح: استخدام MovieModel بدلاً من Movie
                   final movie = MovieModel.fromJson(snapshot.data![index]);
                   
                   return Container(
