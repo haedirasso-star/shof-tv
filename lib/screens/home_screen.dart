@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart'; // مكتبة السلايدر الجديدة
+import 'package:carousel_slider/carousel_slider.dart';
 import '../services/api_service.dart';
 import '../models/movie_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'live_tv_screen.dart';
+import 'movie_details_screen.dart'; // استيراد ملف التفاصيل الجديد
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.search, color: Colors.yellow),
             onPressed: () {
-              // مكان لإضافة محرك البحث لاحقاً
+              // محرك البحث
             },
           ),
         ],
@@ -35,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. السلايدر المتحرك (يجلب الأفلام الرائجة تلقائياً)
+            // 1. السلايدر المتحرك (الربط تم هنا أيضاً)
             FutureBuilder<List<dynamic>>(
               future: _apiService.getTrendingMovies(),
               builder: (context, snapshot) {
@@ -49,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return CarouselSlider(
                   options: CarouselOptions(
                     height: 230.0,
-                    autoPlay: true, // يتحرك تلقائياً
+                    autoPlay: true,
                     enlargeCenterPage: true,
                     viewportFraction: 0.9,
                     autoPlayInterval: const Duration(seconds: 4),
@@ -58,7 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     final movie = MovieModel.fromJson(movieData);
                     return GestureDetector(
                       onTap: () {
-                        // الانتقال لتفاصيل الفيلم (اختياري)
+                        // الربط بشاشة التفاصيل عند الضغط على السلايدر
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MovieDetailsScreen(movie: movie)),
+                        );
                       },
                       child: Stack(
                         alignment: Alignment.bottomCenter,
@@ -72,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               placeholder: (context, url) => Container(color: Colors.black),
                             ),
                           ),
-                          // تظليل أسود خلف النص ليكون واضحاً
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
@@ -109,19 +113,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildNavButton("البث المباشر", Icons.live_tv, () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => LiveTvScreen()));
                   }),
-                  _buildNavButton("السينما", Icons.movie, () {
-                    // سيتم ربطها لاحقاً
-                  }),
-                  _buildNavButton("المسلسلات", Icons.tv, () {
-                    // سيتم ربطها لاحقاً
-                  }),
+                  _buildNavButton("السينما", Icons.movie, () {}),
+                  _buildNavButton("المسلسلات", Icons.tv, () {}),
                 ],
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // 3. قوائم المحتوى (الأفلام والمسلسلات)
+            // 3. قوائم المحتوى (الربط تم هنا أيضاً)
             _buildMovieSection("الأفلام المضافة حديثاً", "movie"),
             _buildMovieSection("أحدث المسلسلات", "tv"),
           ],
@@ -130,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ويدجت زر التنقل المطور
   Widget _buildNavButton(String title, IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -152,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ويدجت أقسام الأفلام
   Widget _buildMovieSection(String sectionTitle, String type) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,31 +183,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final movie = MovieModel.fromJson(snapshot.data![index]);
-                  return Container(
-                    width: 135,
-                    margin: const EdgeInsets.only(right: 12),
-                    child: Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(
-                            imageUrl: movie.posterPath,
-                            height: 170,
-                            width: 135,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(color: Colors.grey[900]),
-                            errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
+                  return GestureDetector(
+                    onTap: () {
+                      // الربط بشاشة التفاصيل عند الضغط على أي ملصق فيلم
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MovieDetailsScreen(movie: movie)),
+                      );
+                    },
+                    child: Container(
+                      width: 135,
+                      margin: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: CachedNetworkImage(
+                              imageUrl: movie.posterPath,
+                              height: 170,
+                              width: 135,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(color: Colors.grey[900]),
+                              errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          movie.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            movie.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
