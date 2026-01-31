@@ -1,8 +1,43 @@
 [
   {
-    "name": "قناة الحرة عراق",
-    "url": "https://mbnvvideoingest-i.akamaihd.net/hls/live/1004674/MBNV_ALHURRA_IRAQ/playlist.m3u8",
-    "logo": "https://i.imgur.com/mXBZEQP.png"
+    "name": "beIN Sports 1",
+    "url": "http://125.209.88.166:45793/BRN/beINSP11.stream/playlist.m3u8",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/BeIN_Sports_1_logo.svg/1024px-BeIN_Sports_1_logo.svg.png"
+  },
+  {
+    "name": "beIN Sports 2",
+    "url": "http://125.209.88.166:45793/BRN/beINSP12.stream/playlist.m3u8",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/BeIN_Sports_2_logo.svg/1200px-BeIN_Sports_2_logo.svg.png"
+  },
+  {
+    "name": "TNT Sports 1",
+    "url": "http://109.61.81.147:2080/cdn2/559/video.m3u8?token=4444",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/TNT_Sports_logo.svg/1200px-TNT_Sports_logo.svg.png"
+  },
+  {
+    "name": "Sky Sports LaLiga",
+    "url": "http://190.92.10.66:4000/play/a001/index.m3u8",
+    "logo": "https://i.imgur.com/M6L5vO1.png"
+  },
+  {
+    "name": "قناة الشرقية",
+    "url": "https://5d94523502c2d.streamlock.net/home/mystream/playlist.m3u8",
+    "logo": "https://i.imgur.com/bPYyXNf.png"
+  },
+  {
+    "name": "الشرقية نيوز",
+    "url": "https://5d94523502c2d.streamlock.net/alsharqiyalive/mystream/playlist.m3u8",
+    "logo": "https://i.imgur.com/P6p17ZY.jpg"
+  },
+  {
+    "name": "قناة دجلة",
+    "url": "https://ghaasiflu.online/Dijlah/tracks-v1a1/playlist.m3u8",
+    "logo": "https://i.imgur.com/FJEeYiz.png"
+  },
+  {
+    "name": "دجلة طرب",
+    "url": "https://ghaasiflu.online/tarab/tracks-v1a1/playlist.m3u8",
+    "logo": "https://i.imgur.com/2SBjjBQ.png"
   },
   {
     "name": "العراقية الإخبارية",
@@ -15,34 +50,9 @@
     "logo": "https://i.imgur.com/SU9HbXY.png"
   },
   {
-    "name": "الشرقية نيوز",
-    "url": "https://5d94523502c2d.streamlock.net/alsharqiyalive/mystream/playlist.m3u8",
-    "logo": "https://i.imgur.com/P6p17ZY.jpg"
-  },
-  {
-    "name": "قناة الشرقية",
-    "url": "https://5d94523502c2d.streamlock.net/home/mystream/playlist.m3u8",
-    "logo": "https://i.imgur.com/bPYyXNf.png"
-  },
-  {
-    "name": "دجلة طرب",
-    "url": "https://ghaasiflu.online/tarab/tracks-v1a1/playlist.m3u8",
-    "logo": "https://i.imgur.com/2SBjjBQ.png"
-  },
-  {
-    "name": "قناة دجلة",
-    "url": "https://ghaasiflu.online/Dijlah/tracks-v1a1/playlist.m3u8",
-    "logo": "https://i.imgur.com/FJEeYiz.png"
-  },
-  {
     "name": "iNEWS الإخبارية",
     "url": "https://svs.itworkscdn.net/inewsiqlive/inewsiq.smil/playlist.m3u8",
     "logo": "https://i.imgur.com/PeuBkaH.png"
-  },
-  {
-    "name": "تركمنلي TV",
-    "url": "https://137840.global.ssl.fastly.net/edge/live_6b7c6e205afb11ebb010f5a331abaf98/playlist.m3u8",
-    "logo": "https://i.imgur.com/iUhhg4B.png"
   },
   {
     "name": "زاكروس TV",
