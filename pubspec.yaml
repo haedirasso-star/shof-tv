@@ -35,12 +35,20 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  # مكتبة توليد أيقونات التطبيق
+  flutter_launcher_icons: ^0.13.1
+
+# إعدادات أيقونة التطبيق (شعار shof)
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/images/logo.png"
 
 flutter:
   uses-material-design: true
 
-  # تفعيل مجلد الصور (تأكد من إنشاء المجلد في مشروعك ووضع اللوجو فيه)
+  # تفعيل مجلد الصور
   assets:
     - assets/images/
-    # إذا كان لديك أيقونة خاصة بالتطبيق، يفضل وضعها هنا
-    # - assets/icons/
