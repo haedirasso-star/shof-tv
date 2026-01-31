@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // أضفت هذا للتحكم في وضع الشاشة
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -22,7 +23,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
   @override
   void initState() {
     super.initState();
-    // فحص ذكي للرابط لضمان عدم حدوث شاشة بيضاء
+    
+    // إجبار الشاشة على الوضع الأفقي عند بدء التشغيل لتجربة أفضل
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+
     if (!widget.videoUrl.contains('.m3u8') && !widget.videoUrl.contains('.mp4')) {
       _isWebView = true;
       _initWebView();
@@ -36,12 +40,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black)
       ..loadRequest(Uri.parse(widget.videoUrl));
-    setState(() { _isLoading = false; });
+    if (mounted) setState(() { _isLoading = false; });
   }
 
   void _initVideoPlayer() async {
-    _videoController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
     try {
+      _videoController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       await _videoController!.initialize();
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
@@ -49,15 +53,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
         isLive: true,
         aspectRatio: _videoController!.value.aspectRatio,
         backgroundColor: Colors.black,
+        allowFullScreen: true,
       );
     } catch (e) {
       debugPrint("Video Init Error: $e");
     }
-    setState(() { _isLoading = false; });
+    if (mounted) setState(() { _isLoading = false; });
   }
 
   @override
   void dispose() {
+    // إعادة الشاشة للوضع الطبيعي عند الخروج من المشغل
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     _videoController?.dispose();
     _chewieController?.dispose();
     super.dispose();
@@ -68,7 +75,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(widget.title ?? "Shof TV", style: const TextStyle(color: Colors.yellow)),
+        title: Text(widget.title ?? "Shof TV", style: const TextStyle(color: Colors.yellow, fontSize: 18)),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.yellow),
       ),
