@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'live_tv_screen.dart';
 import 'movie_details_screen.dart';
 import 'search_screen.dart'; 
-import 'package:url_launcher/url_launcher.dart'; // استيراد المكتبة لفتح الواتساب
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +31,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // دالة موحدة للذهاب لصفحة البحث
+  void _goToSearch() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SearchScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,26 +48,20 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.black,
         centerTitle: true,
         actions: [
-          // --- إضافة زر الدعم الفني هنا ---
           IconButton(
             icon: const Icon(Icons.headset_mic, color: Colors.yellow),
             onPressed: _launchSupport,
           ),
           IconButton(
             icon: const Icon(Icons.search, color: Colors.yellow),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SearchScreen()),
-              );
-            },
+            onPressed: _goToSearch,
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. السلايدر المتحرك للأفلام الرائجة
+            // 1. السلايدر المتحرك
             FutureBuilder<List<dynamic>>(
               future: _apiService.getTrendingMovies(),
               builder: (context, snapshot) {
@@ -133,14 +135,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavButton("البث المباشر", Icons.live_tv, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LiveTvScreen()));
+                    // تم حذف const هنا لحل مشكلة الـ Build
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LiveTvScreen()));
                   }),
-                  _buildNavButton("السينما", Icons.movie, () {
-                    // يمكن إضافة تصفية للأفلام فقط هنا لاحقاً
-                  }),
-                  _buildNavButton("المسلسلات", Icons.tv, () {
-                    // يمكن إضافة تصفية للمسلسلات فقط هنا لاحقاً
-                  }),
+                  _buildNavButton("السينما", Icons.movie, _goToSearch), // تم التفعيل
+                  _buildNavButton("المسلسلات", Icons.tv, _goToSearch), // تم التفعيل
                 ],
               ),
             ),
@@ -187,7 +186,10 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(sectionTitle, style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
-              const Text("عرض الكل", style: TextStyle(color: Colors.grey, fontSize: 12)),
+              GestureDetector(
+                onTap: _goToSearch, // تم تفعيل عرض الكل
+                child: const Text("عرض الكل", style: TextStyle(color: Colors.grey, fontSize: 12)),
+              ),
             ],
           ),
         ),
