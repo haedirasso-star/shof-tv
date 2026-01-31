@@ -17,38 +17,43 @@ class _PlayerScreenState extends State<PlayerScreen> {
   ChewieController? _chewieController;
   WebViewController? _webViewController;
   bool _isWebView = false;
-  bool _isInitialized = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // فحص الرابط: إذا لم يكن فيديو مباشر (m3u8) نفتحه كمتصفح للأفلام
+    // فحص ذكي للرابط لضمان عدم حدوث شاشة بيضاء
     if (!widget.videoUrl.contains('.m3u8') && !widget.videoUrl.contains('.mp4')) {
       _isWebView = true;
-      _webViewController = WebViewController()
-        ..setJavaScriptMode(JavaScriptMode.unrestricted)
-        ..setBackgroundColor(Colors.black)
-        ..loadRequest(Uri.parse(widget.videoUrl));
-      setState(() { _isInitialized = true; });
+      _initWebView();
     } else {
-      _initVideo();
+      _initVideoPlayer();
     }
   }
 
-  void _initVideo() async {
+  void _initWebView() {
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.black)
+      ..loadRequest(Uri.parse(widget.videoUrl));
+    setState(() { _isLoading = false; });
+  }
+
+  void _initVideoPlayer() async {
+    _videoController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
     try {
-      _videoController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       await _videoController!.initialize();
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         autoPlay: true,
         isLive: true,
         aspectRatio: _videoController!.value.aspectRatio,
+        backgroundColor: Colors.black,
       );
-      setState(() { _isInitialized = true; });
     } catch (e) {
-      debugPrint("خطأ في المشغل: $e");
+      debugPrint("Video Init Error: $e");
     }
+    setState(() { _isLoading = false; });
   }
 
   @override
@@ -65,12 +70,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
       appBar: AppBar(
         title: Text(widget.title ?? "Shof TV", style: const TextStyle(color: Colors.yellow)),
         backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.yellow),
       ),
-      body: !_isInitialized 
-        ? const Center(child: CircularProgressIndicator(color: Colors.yellow))
-        : _isWebView 
-            ? WebViewWidget(controller: _webViewController!) 
-            : Chewie(controller: _chewieController!),
+      body: Center(
+        child: _isLoading 
+          ? const CircularProgressIndicator(color: Colors.yellow)
+          : _isWebView 
+              ? WebViewWidget(controller: _webViewController!) 
+              : Chewie(controller: _chewieController!),
+      ),
     );
   }
 }
