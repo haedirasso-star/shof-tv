@@ -1,5 +1,5 @@
 name: shof_tv
-description: A new Flutter project for movies and live tv.
+description: "تطبيق Shof TV لمشاهدة القنوات العراقية والرياضية والأفلام"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -18,15 +18,18 @@ dependencies:
   video_player: ^2.8.1
   chewie: ^1.7.5
   
-  # مكتبة تشغيل سيرفرات المشاهدة العالمية (Embed)
+  # مكتبة تشغيل سيرفرات المشاهدة العالمية والأفلام (Embed)
   webview_flutter: ^4.4.2
 
   # مكتبات الواجهة والسلايدر والصور
   carousel_slider: ^5.0.0
   cached_network_image: ^3.3.0
   
-  # مكتبة فتح الروابط الخارجية (مثل التلجرام)
+  # مكتبة فتح الروابط الخارجية (مثل التلجرام والدعم الفني)
   url_launcher: ^6.2.1
+
+  # إضافة مكتبة للتحقق من الاتصال بالإنترنت (مهمة لتطبيقات الـ IPTV)
+  connectivity_plus: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -36,6 +39,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # إذا كان لديك أي صور محلية (لوجو التطبيق مثلاً) أضفها هنا
-  # assets:
-  #   - assets/images/
+  # تفعيل مجلد الصور (تأكد من إنشاء المجلد في مشروعك ووضع اللوجو فيه)
+  assets:
+    - assets/images/
+    # إذا كان لديك أيقونة خاصة بالتطبيق، يفضل وضعها هنا
+    # - assets/icons/
