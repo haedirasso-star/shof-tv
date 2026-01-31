@@ -15,6 +15,7 @@ class VideoPlayerScreen extends StatefulWidget {
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -23,27 +24,55 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Future<void> _initializePlayer() async {
-    _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.url));
-    
-    await _videoPlayerController.initialize();
+    try {
+      // إرسال طلب وكأننا متصفح لفتح الروابط المشفرة أو المحمية
+      _videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(widget.url),
+        httpHeaders: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+        },
+      );
 
-    _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController,
-      autoPlay: true,
-      looping: false,
-      aspectRatio: _videoPlayerController.value.aspectRatio,
-      allowFullScreen: true,
-      isLive: true, // مهم جداً لأنها قنوات بث مباشر
-      errorBuilder: (context, errorMessage) {
-        return Center(
-          child: Text(
-            "عذراً، هذا البث غير متاح حالياً",
-            style: TextStyle(color: Colors.white),
-          ),
-        );
-      },
-    );
-    setState(() {});
+      await _videoPlayerController.initialize();
+
+      _chewieController = ChewieController(
+        videoPlayerController: _videoPlayerController,
+        autoPlay: true,
+        looping: false,
+        aspectRatio: _videoPlayerController.value.aspectRatio,
+        allowFullScreen: true,
+        isLive: true, // مهم جداً لقنوات البث المباشر
+        
+        // تخصيص الألوان لتناسب تطبيق Shof TV
+        materialProgressColors: ChewieProgressColors(
+          playedColor: Colors.yellow,
+          handleColor: Colors.yellow,
+          backgroundColor: Colors.grey,
+          bufferedColor: Colors.white.withOpacity(0.3),
+        ),
+        
+        errorBuilder: (context, errorMessage) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 50),
+                const SizedBox(height: 10),
+                Text(
+                  "عذراً، هذا البث غير متاح حالياً",
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+      });
+    }
+    if (mounted) setState(() {});
   }
 
   @override
@@ -51,22 +80,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(widget.name, style: const TextStyle(color: Colors.yellow)),
+        title: Text(widget.name, style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.yellow),
+        elevation: 0,
       ),
       body: Center(
-        child: _chewieController != null &&
-                _chewieController!.videoPlayerController.value.isInitialized
-            ? Chewie(controller: _chewieController!)
-            : const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(color: Colors.yellow),
-                  SizedBox(height: 20),
-                  Text("جاري تشغيل البث...", style: TextStyle(color: Colors.white)),
-                ],
-              ),
+        child: _hasError
+            ? const Text("خطأ في تشغيل الرابط", style: TextStyle(color: Colors.red))
+            : _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized
+                ? Chewie(controller: _chewieController!)
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(color: Colors.yellow),
+                      const SizedBox(height: 20),
+                      Text(
+                        "جاري تحضير البث المباشر...",
+                        style: TextStyle(color: Colors.yellow.withOpacity(0.8)),
+                      ),
+                    ],
+                  ),
       ),
     );
   }
