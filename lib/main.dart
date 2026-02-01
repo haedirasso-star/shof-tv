@@ -38,7 +38,6 @@ class ShofTVApp extends StatelessWidget {
 class MandatorySubscriptionScreen extends StatelessWidget {
   const MandatorySubscriptionScreen({super.key});
 
-  // فتح رابط التليجرام الخاص بك O_2828
   Future<void> _launchTelegram() async {
     final Uri url = Uri.parse('https://t.me/O_2828');
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
@@ -52,7 +51,6 @@ class MandatorySubscriptionScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          // تدرج لوني يعطي لمسة فخامة خلف الأيقونة
           gradient: RadialGradient(
             center: Alignment.center,
             radius: 1.0,
@@ -63,7 +61,6 @@ class MandatorySubscriptionScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // أيقونة التليجرام بتأثير الظل المتوهج
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -82,7 +79,7 @@ class MandatorySubscriptionScreen extends StatelessWidget {
               "TOL • SHOF TV",
               style: TextStyle(
                 fontSize: 28, 
-                fontWeight: FontWeight.black, 
+                fontWeight: FontWeight.w900, // تم التصحيح من black إلى w900
                 color: Colors.yellow,
                 letterSpacing: 2,
               ),
@@ -102,16 +99,16 @@ class MandatorySubscriptionScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 50),
-            // زر الاشتراك بتصميم كبسولة متوهج
             GestureDetector(
               onTap: () async {
                 await _launchTelegram();
-                // تأخير بسيط لضمان انتقال المستخدم للتليجرام أولاً
                 Future.delayed(const Duration(seconds: 1), () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  );
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    );
+                  }
                 });
               },
               child: Container(
