@@ -1,25 +1,24 @@
 workflows:
-  totv-final-fix:
-    name: ToTV+ Ultimate Success
+  totv-build-fix:
+    name: TOTV+ Final Success Build
     max_build_duration: 30
     instance_type: mac_mini_m1
     environment:
-      # إجبار النظام على استخدام نسخة حديثة تتخطى خطأ filePermissions
-      flutter: 3.24.0 
+      flutter: 3.24.0 # هذا السطر هو مفتاح الحل
       java: 17
     scripts:
-      - name: Hard Cleanup
+      - name: Reset Flutter and Gradle
         script: | 
-          # مسح ذاكرة الكاش تماماً
           flutter clean
           flutter pub get
           cd android
-          # إجبار الأندرويد على استخدام نسخة Kotlin التي وضعناها في build.gradle
-          ./gradlew clean
+          # إجبار Gradle على تجاهل أي إعدادات تالفة في الأدوات
+          echo "android.suppressUnsupportedCompileSdk=34" >> local.properties
+          chmod +x gradlew
           cd ..
       - name: Build Android Release APK
         script: | 
-          # السر هنا: بناء النسخة النهائية (Release) يتخطى فحص ملفات المطورين التي تسبب الفشل
+          # السر: بناء النسخة النهائية (Release) يتجاهل أخطاء الـ Debug في فلاتر
           flutter build apk --release --no-tree-shake-icons
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
