@@ -1,12 +1,16 @@
 buildscript {
-    ext.kotlin_version = '1.8.22'
+    // تحديث نسخة Kotlin إلى إصدار مستقر يدعم الميزات الجديدة
+    ext.kotlin_version = '1.9.20'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+        // تحديث AGP إلى 8.1.0 ليتوافق مع Java 17 المستخدمة في Codemagic
+        classpath 'com.android.tools.build:gradle:8.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // إضافة كلاس باث Firebase الضروري لملف google-services.json
+        classpath 'com.google.gms:google-services:4.4.0'
     }
 }
 
@@ -23,4 +27,8 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
 }
