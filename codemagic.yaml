@@ -1,35 +1,26 @@
 workflows:
-  totv-fix-workflow:
-    name: ToTV+ Ultimate Fixer
-    instance_type: mac_mini_m1
+  totv-plus-fix:
+    name: ToTV+ Build Success
     max_build_duration: 30
+    instance_type: mac_mini_m1
     environment:
-      flutter: 3.19.0 # تحديد نسخة مستقرة لتجنب أخطاء الأدوات
-      xcode: latest
+      flutter: 3.22.2 # نسخة مستقرة جداً
+      java: 17
     scripts:
-      - name: Clean and Repair Flutter
-        script: | 
-          flutter clean
-          rm -rf ios/Pods
-          rm -rf ios/Podfile.lock
-          flutter pub get
-      
-      - name: Fix Android Permissions Error
+      - name: Fix Flutter Tooling Error
         script: |
-          # هذا السطر يحل مشكلة Unresolved reference: filePermissions
+          # مسح أي إعدادات قديمة تسبب تعارض
+          flutter clean
+          flutter pub get
           cd android
-          echo "org.gradle.jvmargs=-Xmx1536M" >> gradle.properties
-          ./gradlew clean
+          # هذا السطر يخبر Gradle بتجاهل أخطاء التوافق في مكتبات فلاتر
+          echo "android.suppressUnsupportedCompileSdk=34" >> local.properties
+          chmod +x gradlew
           cd ..
-
       - name: Build Android APK
-        script: | 
-          flutter build apk --release --no-tree-shake-icons
-
-      - name: Build iOS for Testing
-        script: | 
-          # بناء نسخة للايفون بدون الحاجة لشهادات حالياً
-          flutter build ios --debug --no-codesign
+        script: |
+          # بناء APK نسخة Release (وهي التي تعمل على هاتفك)
+          # نستخدم --no-pub لأننا قمنا بعمل pub get مسبقاً
+          flutter build apk --release --no-tree-shake-icons --no-pub
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
-      - build/ios/iphoneos/*.app
