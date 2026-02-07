@@ -1,26 +1,25 @@
 workflows:
-  totv-plus-fix:
-    name: ToTV+ Build Success
+  totv-final-fix:
+    name: ToTV+ Ultimate Success
     max_build_duration: 30
     instance_type: mac_mini_m1
     environment:
-      flutter: 3.22.2 # نسخة مستقرة جداً
+      # إجبار النظام على استخدام نسخة حديثة تتخطى خطأ filePermissions
+      flutter: 3.24.0 
       java: 17
     scripts:
-      - name: Fix Flutter Tooling Error
-        script: |
-          # مسح أي إعدادات قديمة تسبب تعارض
+      - name: Hard Cleanup
+        script: | 
+          # مسح ذاكرة الكاش تماماً
           flutter clean
           flutter pub get
           cd android
-          # هذا السطر يخبر Gradle بتجاهل أخطاء التوافق في مكتبات فلاتر
-          echo "android.suppressUnsupportedCompileSdk=34" >> local.properties
-          chmod +x gradlew
+          # إجبار الأندرويد على استخدام نسخة Kotlin التي وضعناها في build.gradle
+          ./gradlew clean
           cd ..
-      - name: Build Android APK
-        script: |
-          # بناء APK نسخة Release (وهي التي تعمل على هاتفك)
-          # نستخدم --no-pub لأننا قمنا بعمل pub get مسبقاً
-          flutter build apk --release --no-tree-shake-icons --no-pub
+      - name: Build Android Release APK
+        script: | 
+          # السر هنا: بناء النسخة النهائية (Release) يتخطى فحص ملفات المطورين التي تسبب الفشل
+          flutter build apk --release --no-tree-shake-icons
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
