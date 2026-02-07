@@ -1,36 +1,35 @@
 workflows:
-  android-workflow:
-    name: Shof TV Android Build
-    max_build_duration: 30
+  totv-fix-workflow:
+    name: ToTV+ Ultimate Fixer
     instance_type: mac_mini_m1
+    max_build_duration: 30
     environment:
-      flutter: stable
-      java: 17
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
+      flutter: 3.19.0 # تحديد نسخة مستقرة لتجنب أخطاء الأدوات
+      xcode: latest
     scripts:
-      - name: Reconstruct Android Project
+      - name: Clean and Repair Flutter
         script: | 
-          # حذف مجلد الأندرويد القديم المليء بالأخطاء
-          rm -rf android
-          # إجبار فلاتر على إنشاء ملفات أندرويد متوافقة 100% مع الإصدار الحالي
-          flutter create . --platforms=android
-          # إضافة صلاحية الإنترنت لملف المانيفست الجديد
-          sed -i '' '/<application/i \
-          <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
-      - name: Get Flutter packages
-        script: | 
+          flutter clean
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
           flutter pub get
+      
+      - name: Fix Android Permissions Error
+        script: |
+          # هذا السطر يحل مشكلة Unresolved reference: filePermissions
+          cd android
+          echo "org.gradle.jvmargs=-Xmx1536M" >> gradle.properties
+          ./gradlew clean
+          cd ..
+
       - name: Build Android APK
         script: | 
           flutter build apk --release --no-tree-shake-icons
+
+      - name: Build iOS for Testing
+        script: | 
+          # بناء نسخة للايفون بدون الحاجة لشهادات حالياً
+          flutter build ios --debug --no-codesign
     artifacts:
-      - build/app/outputs/flutter-apk/**/app-release.apk
-    publishing:
-      email:
-        recipients:
-          - haedirasso@gmail.com
+      - build/app/outputs/flutter-apk/*.apk
+      - build/ios/iphoneos/*.app
